@@ -1,5 +1,5 @@
 import './Console.css';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 const Console = (props) => {
 	const [consoleText, setConsoleText] = useState('');
@@ -7,17 +7,19 @@ const Console = (props) => {
 	const [userStr, setUserStr] = useState('');
 	
 	const addConsoleText = (text) => {
-		setConsoleText(consoleText + (consoleText && '\n') + userStr + text);
+		setConsoleText((consoleText) => consoleText + (consoleText && '\n') + text);
 	}
 	
 	const processInput = (input) => {
 		setInputText('');
-		addConsoleText(input);
+		addConsoleText(userStr + input);
 		processActions(props.application.process(input));
 	}
 	
 	const processActions = (actions) => {
+		console.log('processing batch of ' + actions.length + ' actions:');
 		actions.forEach((action) => {
+			console.log('process', action.type);
 			switch (action.type) {
 				case ConsoleActions.CLEAR:
 					setInputText('');
@@ -36,14 +38,10 @@ const Console = (props) => {
 		});
 	}
 	
-	processActions(props.application.init());
-	
-	const playerId = 8;
-	
-	//const userStr = `Player { playerId }@TicTacToe ~ % `;
+	useEffect(() => processActions(props.application.init()), []);
 	
 	return (
-		<div className="console">
+		<div className="console" onClick={() => document.getElementById('console-input').focus()}>
 			<div className="console-header">
 				<div className="console-controls">
 					<div className="console-controls-control" onClick={() => {
@@ -57,10 +55,12 @@ const Console = (props) => {
 				<div className="console-content-text">{ consoleText }</div>
 				<div className="console-content-prompt">
 					<p>{userStr}</p>
-					<input value={inputText}
-					       type="text"
-					       onChange={(e) => setInputText(e.target.value)}
-					       onKeyPress={(e) => {(e.key === 'Enter' && processInput(e.target.value))}} />
+					<input
+						id='console-input'
+						value={inputText}
+						type="text"
+						onChange={(e) => setInputText(e.target.value)}
+						onKeyPress={(e) => {(e.key === 'Enter' && processInput(e.target.value))}} />
 				</div>
 			
 			</div>

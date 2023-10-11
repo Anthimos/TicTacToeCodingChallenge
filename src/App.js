@@ -1,9 +1,17 @@
 import './App.css';
 import Console from "./Console";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import Game from "./Game";
 
-function App() {
+const App = () => {
 	const [isApplicationRunning, setIsApplicationRunning] = useState(false);
+	const [game, setGame] = useState(null);
+	
+	const start = () => {
+		setGame(Game());
+		setIsApplicationRunning(true);
+	}
+	useEffect(() => start(), []);
 	
 	return (
 		<div className="App">
@@ -11,9 +19,9 @@ function App() {
 			{isApplicationRunning ?
 				<Console
 					applicationQuit={() => {setIsApplicationRunning(false)}}
-					application={({init: () => [], process: () => []})}/>
+					application={game}/>
 				:
-				<p>Application closed. <button onClick={() => setIsApplicationRunning(true)}>Reopen?</button></p>
+				<p>Application closed. <button onClick={() => start()}>Reopen?</button></p>
 			}
 			
 		</div>
