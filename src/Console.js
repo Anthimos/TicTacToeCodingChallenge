@@ -22,7 +22,7 @@ const Console = (props) => {
 			console.log('process', action.type);
 			switch (action.type) {
 				case ConsoleActions.CLEAR:
-					setInputText('');
+					setConsoleText('');
 					break;
 				case ConsoleActions.QUIT:
 					props.applicationQuit();
