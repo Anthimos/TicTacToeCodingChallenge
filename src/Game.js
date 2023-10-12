@@ -73,7 +73,6 @@ class Game {
 	}
 	
 	process(input) {
-		console.log('processing: ' + input);
 		if (input === '') {
 			return [{
 				type: ConsoleActions.CLEAR,
