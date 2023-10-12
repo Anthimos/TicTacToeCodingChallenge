@@ -1,18 +1,21 @@
 import {ConsoleActions} from "./Console";
 
-const Game = () => {
-	let grid, player;
-	const winningStats = {
+class Game {
+	grid;
+	player;
+	
+	winningStats = {
 		X: 0,
 		O: 0
 	}
 	
-	const playerSymbols = {
+	playerSymbols = {
 		1: 'X',
 		2: 'O'
 	}
 	
-	const renderGrid = (grid) => {
+	renderGrid() {
+		const grid = this.grid;
 		return '' +
 			`       |       |       \n` +
 			`   ${grid[0][0]}   |   ${grid[0][1]}   |   ${grid[0][2]}   \n` +
@@ -27,14 +30,15 @@ const Game = () => {
 			`       |       |       \n `
 	}
 	
-	const printStats = () => '' +
-		'X wins: ' + winningStats.X + '\n' +
-		'O wins: ' + winningStats.O;
+	printStats() {
+		return '' +
+			'X wins: ' + this.winningStats.X + '\n' +
+			'O wins: ' + this.winningStats.O;
+	}
 	
-	
-	const init = () => {
-		grid = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
-		player = 1;
+	init() {
+		this.grid = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
+		this.player = 1;
 		return [{
 			type: ConsoleActions.CLEAR,
 		}, {
@@ -42,16 +46,16 @@ const Game = () => {
 			payload: 'X: Please enter the position of your mark (Row:Column):\n\nExample: "2:2" places the X in the middle center field\n '
 		}, {
 			type: ConsoleActions.WRITE,
-			payload: renderGrid(grid)
+			payload: this.renderGrid(this.grid)
 		}, {
 			type: ConsoleActions.SET_USER_STR,
-			payload: `Player ${player} (${playerSymbols[player]})@TicTacToe ~ % `
+			payload: `Player ${this.player} (${this.playerSymbols[this.player]})@TicTacToe ~ % `
 		}];
 	}
 	
-	const parseCoordinate = (coordinate) => coordinate === '1' || coordinate === '2' || coordinate === '3' ? parseInt(coordinate) : false
+	static parseCoordinate = (coordinate) => coordinate === '1' || coordinate === '2' || coordinate === '3' ? parseInt(coordinate) : false
 	
-	const determineWinner = (grid) => {
+	determineWinner(grid) {
 		const diagonalsMatch = (symbol) => [grid[0][0], grid[1][1], grid[2][2]].every(val => val === symbol) ||
 			[grid[2][0], grid[1][1], grid[0][2]].every(val => val === symbol);
 		const rowsMatch = (symbol) => [0, 1, 2].some(index =>
@@ -62,20 +66,20 @@ const Game = () => {
 		);
 		
 		return [1, 2].find(player => {
-			const symbol = playerSymbols[player];
+			const symbol = this.playerSymbols[player];
 			
 			return diagonalsMatch(symbol) || rowsMatch(symbol) || columnsMatch(symbol);
 		})
 	}
 	
-	const process = (input) => {
+	process(input) {
 		console.log('processing: ' + input);
 		if (input === '') {
 			return [{
 				type: ConsoleActions.CLEAR,
 			}, {
 				type: ConsoleActions.WRITE,
-				payload: renderGrid(grid)
+				payload: this.renderGrid()
 			}];
 		}
 		
@@ -88,65 +92,65 @@ const Game = () => {
 		if (input === 'p') {
 			return [{
 				type: ConsoleActions.WRITE,
-				payload: printStats() + '\nPress enter to remain...'
+				payload: this.printStats() + '\nPress enter to remain...'
 			}]
 		}
 		
 		const tileInput = input.split(':');
-		if (tileInput.length === 2 && parseCoordinate(tileInput[0]) && parseCoordinate(tileInput[1])) {
-			const coordinates = [parseCoordinate(tileInput[0]), parseCoordinate(tileInput[1])];
-			if (grid[coordinates[0] - 1][coordinates[1] - 1] !== ' ') {
+		if (tileInput.length === 2 && Game.parseCoordinate(tileInput[0]) && Game.parseCoordinate(tileInput[1])) {
+			const coordinates = [Game.parseCoordinate(tileInput[0]), Game.parseCoordinate(tileInput[1])];
+			if (this.grid[coordinates[0] - 1][coordinates[1] - 1] !== ' ') {
 				return [{
 					type: ConsoleActions.WRITE,
 					payload: `Wrong input: The tile at row ${coordinates[0]} and column ${coordinates[1]} is already marked.`
 				}]
 			}
 			
-			grid[coordinates[0] - 1][coordinates[1] - 1] = playerSymbols[player];
+			this.grid[coordinates[0] - 1][coordinates[1] - 1] = this.playerSymbols[this.player];
 
-			const winner = determineWinner(grid);
+			const winner = this.determineWinner(this.grid);
 			
 			if (winner) {
-				const oldGrid = renderGrid(grid);
-				winningStats[playerSymbols[winner]]++;
-				player = winner === 1 ? 2 : 1;
-				grid = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
+				const oldGrid = this.renderGrid();
+				this.winningStats[this.playerSymbols[winner]]++;
+				this.player = winner === 1 ? 2 : 1;
+				this.grid = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
 				return [{
 					type: ConsoleActions.CLEAR,
 				}, {
 					type: ConsoleActions.WRITE,
-					payload: `${oldGrid}\nPlayer ${winner} (${playerSymbols[winner]}) won!\n${printStats()}\nPress enter to start a new round.`
+					payload: `${oldGrid}\nPlayer ${winner} (${this.playerSymbols[winner]}) won!\n${this.printStats()}\nPress enter to start a new round.`
 				}, {
 					type: ConsoleActions.SET_USER_STR,
-					payload: `Player ${player} (${playerSymbols[player]})@TicTacToe ~ % `
+					payload: `Player ${this.player} (${this.playerSymbols[this.player]})@TicTacToe ~ % `
 				}]
 			}
 			
-			if (!grid.some(row => row.some(tile => tile === ' '))) {
-				const oldGrid = renderGrid(grid);
-				player = 1;
-				grid = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
+			if (!this.grid.some(row => row.some(tile => tile === ' '))) {
+				const oldGrid = this.renderGrid(this.grid);
+				this.player = 1;
+				this.grid = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
 				return [{
 					type: ConsoleActions.CLEAR,
 				}, {
 					type: ConsoleActions.WRITE,
-					payload: `${oldGrid}\nIt's a draw!\n${printStats()}\nPress enter to start a new round.`
+					payload: `${oldGrid}\nIt's a draw!\n${this.printStats()}\nPress enter to start a new round.`
 				}, {
 					type: ConsoleActions.SET_USER_STR,
-					payload: `Player ${player} (${playerSymbols[player]})@TicTacToe ~ % `
+					payload: `Player ${this.player} (${this.playerSymbols[this.player]})@TicTacToe ~ % `
 				}]
 			}
 			
-			player = player === 1 ? 2 : 1;
+			this.player = this.player === 1 ? 2 : 1;
 			
 			return [{
 				type: ConsoleActions.CLEAR,
 			}, {
 				type: ConsoleActions.WRITE,
-				payload: renderGrid(grid)
+				payload: this.renderGrid()
 			}, {
 				type: ConsoleActions.SET_USER_STR,
-				payload: `Player ${player} (${playerSymbols[player]})@TicTacToe ~ % `
+				payload: `Player ${this.player} (${this.playerSymbols[this.player]})@TicTacToe ~ % `
 			}]
 		}
 		
@@ -155,9 +159,6 @@ const Game = () => {
 			payload: 'Wrong input: Enter "Row:Column" with row and column between 1 and 3, or type "p" to print stats or "e" to end the game.'
 		}]
 	};
-	
-	
-	return { init, process };
 }
 
 export default Game;

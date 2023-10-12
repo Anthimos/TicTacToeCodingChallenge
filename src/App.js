@@ -8,7 +8,7 @@ const App = () => {
 	const [game, setGame] = useState(null);
 	
 	const start = () => {
-		setGame(Game());
+		setGame(new Game());
 		setIsApplicationRunning(true);
 	}
 	useEffect(() => start(), []);

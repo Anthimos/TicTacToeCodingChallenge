@@ -1,7 +1,7 @@
 import './Console.css';
 import {useEffect, useState} from "react";
 
-const Console = (props) => {
+const Console = ({application, applicationQuit}) => {
 	const [consoleText, setConsoleText] = useState('');
 	const [inputText, setInputText] = useState('');
 	const [userStr, setUserStr] = useState('');
@@ -13,19 +13,17 @@ const Console = (props) => {
 	const processInput = (input) => {
 		setInputText('');
 		addConsoleText(userStr + input);
-		processActions(props.application.process(input));
+		processActions(application.process(input));
 	}
 	
 	const processActions = (actions) => {
-		console.log('processing batch of ' + actions.length + ' actions:');
 		actions.forEach((action) => {
-			console.log('process', action.type);
 			switch (action.type) {
 				case ConsoleActions.CLEAR:
 					setConsoleText('');
 					break;
 				case ConsoleActions.QUIT:
-					props.applicationQuit();
+					applicationQuit();
 					break;
 				case ConsoleActions.SET_USER_STR:
 					setUserStr(action.payload);
@@ -38,14 +36,14 @@ const Console = (props) => {
 		});
 	}
 	
-	useEffect(() => processActions(props.application.init()), []);
+	useEffect(() => processActions(application.init()), []);
 	
 	return (
 		<div className="console" onClick={() => document.getElementById('console-input').focus()}>
 			<div className="console-header">
 				<div className="console-controls">
 					<div className="console-controls-control" onClick={() => {
-						props.applicationQuit()}}/>
+						applicationQuit()}}/>
 					<div className="console-controls-control"/>
 					<div className="console-controls-control"/>
 				</div>
